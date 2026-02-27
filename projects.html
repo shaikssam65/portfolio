@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sameer Shaik — Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --surface: #0c1220;
+    --surface2: #0f1929;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #f97316;
+    --accent4: #22c55e;
+    --text: #e8edf5;
+    --muted: #6b7a99;
+    --border: rgba(0,229,255,0.1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* NOISE */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1; opacity: 0.35;
+  }
+
+  /* CURSOR */
+  .cursor { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .15s, height .15s; mix-blend-mode: difference; }
+  .cursor-ring { width: 36px; height: 36px; border: 1px solid rgba(0,229,255,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: transform .12s ease-out; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1.1rem 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: rgba(5,8,16,0.88);
+    backdrop-filter: blur(20px);
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; letter-spacing: 0.1em; color: var(--accent); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; transition: color .2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+  /* HERO STRIP */
+  .page-hero {
+    padding: 9rem 3rem 4rem;
+    position: relative; z-index: 2;
+    max-width: 1400px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 2rem;
+  }
+  .page-hero-left {}
+  .page-badge {
+    font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 1.2rem; display: flex; align-items: center; gap: 1rem;
+  }
+  .page-badge::before { content: ''; width: 30px; height: 1px; background: var(--accent); }
+  .page-title {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(3rem, 7vw, 6rem); line-height: 0.95; letter-spacing: -0.03em;
+  }
+  .page-title span { color: transparent; -webkit-text-stroke: 1px rgba(0,229,255,0.35); display: block; }
+  .page-sub { font-size: 0.78rem; color: var(--muted); line-height: 1.8; max-width: 400px; margin-top: 1.2rem; }
+
+  .stats-row { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+  .mini-stat { text-align: right; }
+  .mini-stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .mini-stat-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+
+  /* FILTER BAR */
+  .filter-bar {
+    position: sticky; top: 56px; z-index: 50;
+    background: rgba(5,8,16,0.92); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 3rem;
+    display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;
+    position: relative; z-index: 2;
+  }
+  .filter-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-right: 0.5rem; }
+  .filter-btn {
+    padding: 0.35rem 1rem; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+    border: 1px solid var(--border); background: transparent; color: var(--muted);
+    cursor: none; transition: all .2s;
+  }
+  .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
+
+  /* PROJECTS GRID */
+  .projects-section { position: relative; z-index: 2; padding: 3rem; max-width: 1400px; margin: 0 auto; }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  /* CARD BASE */
+  .proj-card {
+    background: var(--surface);
+    padding: 2.2rem;
+    position: relative; overflow: hidden;
+    transition: background .3s, transform .3s;
+  }
+  .proj-card:hover { background: var(--surface2); }
+
+  /* CARD SIZES */
+  .proj-card.large  { grid-column: span 8; }
+  .proj-card.medium { grid-column: span 6; }
+  .proj-card.small  { grid-column: span 4; }
+  .proj-card.full   { grid-column: span 12; }
+
+  /* ACCENT LINE ON HOVER */
+  .proj-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    transform: scaleX(0); transform-origin: left; transition: transform .35s;
+  }
+  .proj-card:hover::before { transform: scaleX(1); }
+  .proj-card[data-color="cyan"]::before   { background: linear-gradient(90deg, var(--accent), transparent); }
+  .proj-card[data-color="purple"]::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .proj-card[data-color="orange"]::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .proj-card[data-color="green"]::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+
+  /* BIG NUMBER BG */
+  .card-bg-num {
+    position: absolute; bottom: -1rem; right: 1rem;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 7rem; line-height: 1;
+    color: rgba(255,255,255,0.025); pointer-events: none; user-select: none;
+    transition: color .3s;
+  }
+  .proj-card:hover .card-bg-num { color: rgba(0,229,255,0.04); }
+
+  /* CARD CONTENT */
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .card-icon { font-size: 1.8rem; }
+  .card-status {
+    font-size: 0.58rem; padding: 0.2rem 0.7rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    border: 1px solid; display: flex; align-items: center; gap: 0.4rem;
+  }
+  .card-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .status-published  { color: var(--accent4);  border-color: rgba(34,197,94,0.3); }
+  .status-research   { color: var(--accent);   border-color: rgba(0,229,255,0.3); }
+  .status-applied    { color: var(--accent3);  border-color: rgba(249,115,22,0.3); }
+  .status-patent     { color: var(--accent2);  border-color: rgba(124,58,237,0.3); }
+
+  .card-partner {
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.6rem;
+  }
+  .proj-card[data-color="cyan"]   .card-partner { color: var(--accent); }
+  .proj-card[data-color="purple"] .card-partner { color: var(--accent2); }
+  .proj-card[data-color="orange"] .card-partner { color: var(--accent3); }
+  .proj-card[data-color="green"]  .card-partner { color: var(--accent4); }
+
+  .card-title {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.3rem); line-height: 1.3; margin-bottom: 0.8rem;
+  }
+
+  .card-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.75; margin-bottom: 1.2rem; }
+
+  /* METRICS */
+  .card-metrics { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .metric { }
+  .metric-val {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; line-height: 1;
+  }
+  .proj-card[data-color="cyan"]   .metric-val { color: var(--accent); }
+  .proj-card[data-color="purple"] .metric-val { color: var(--accent2); }
+  .proj-card[data-color="orange"] .metric-val { color: var(--accent3); }
+  .proj-card[data-color="green"]  .metric-val { color: var(--accent4); }
+  .metric-label { font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+  /* BULLET POINTS */
+  .card-bullets { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.2rem; }
+  .card-bullets li {
+    font-size: 0.7rem; color: var(--muted); line-height: 1.6;
+    padding-left: 1.2rem; position: relative;
+  }
+  .card-bullets li::before { content: '→'; position: absolute; left: 0; font-size: 0.6rem; }
+  .proj-card[data-color="cyan"]   .card-bullets li::before { color: var(--accent); }
+  .proj-card[data-color="purple"] .card-bullets li::before { color: var(--accent2); }
+  .proj-card[data-color="orange"] .card-bullets li::before { color: var(--accent3); }
+  .proj-card[data-color="green"]  .card-bullets li::before { color: var(--accent4); }
+
+  /* TAGS */
+  .card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .ctag {
+    font-size: 0.58rem; padding: 0.2rem 0.55rem;
+    border: 1px solid rgba(255,255,255,0.06); color: var(--muted);
+    letter-spacing: 0.06em; transition: all .2s; text-transform: uppercase;
+  }
+  .proj-card:hover .ctag { border-color: rgba(0,229,255,0.15); }
+
+  /* DIVIDER */
+  .card-divider { width: 100%; height: 1px; background: var(--border); margin: 1rem 0; }
+
+  /* FADE IN */
+  .fade-in { opacity: 0; transform: translateY(25px); transition: opacity .6s ease, transform .6s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 2;
+    padding: 2rem 3rem; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em;
+  }
+  .back-link {
+    color: var(--accent); text-decoration: none; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem;
+    transition: gap .2s;
+  }
+  .back-link:hover { gap: 1rem; }
+
+  /* HIDDEN for filter */
+  .proj-card.hidden { display: none; }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .page-hero, .projects-section, .filter-bar { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .proj-card.large, .proj-card.medium, .proj-card.small, .proj-card.full { grid-column: span 12; }
+    .stats-row { gap: 1.5rem; }
+    .mini-stat { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">SS // AI ENGINEER</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="index.html#skills">Skills</a>
+    <a href="index.html#research">Research</a>
+    <a href="projects.html" class="active">Projects</a>
+    <a href="index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-left">
+    <div class="page-badge">Portfolio — Selected Work</div>
+    <h1 class="page-title">
+      PROJECTS
+      <span>&amp; BUILDS</span>
+    </h1>
+    <p class="page-sub">From clinical NLP at Sinai Hospital to geospatial AI for Cook County Sheriff — real-world systems with measurable impact.</p>
+  </div>
+  <div class="stats-row">
+    <div class="mini-stat">
+      <div class="mini-stat-num">8</div>
+      <div class="mini-stat-label">Projects</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-num">4</div>
+      <div class="mini-stat-label">Publications</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-num">1</div>
+      <div class="mini-stat-label">Patent Pending</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <span class="filter-label">Filter:</span>
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="nlp">NLP / LLM</button>
+  <button class="filter-btn" data-filter="ml">ML / Deep Learning</button>
+  <button class="filter-btn" data-filter="geo">Geospatial</button>
+  <button class="filter-btn" data-filter="security">Security</button>
+</div>
+
+<!-- GRID -->
+<div class="projects-section">
+<div class="projects-grid" id="projectsGrid">
+
+  <!-- 1. CLINICAL NLP — LARGE -->
+  <div class="proj-card large fade-in" data-color="cyan" data-tags="nlp ml">
+    <div class="card-bg-num">01</div>
+    <div class="card-top">
+      <div class="card-icon">🏥</div>
+      <span class="card-status status-published">Published · IEEE eScience 2025</span>
+    </div>
+    <div class="card-partner">Sinai Hospital, Chicago</div>
+    <h2 class="card-title">Clinical NLP for ED Readmission Prediction</h2>
+    <div class="card-metrics">
+      <div class="metric"><div class="metric-val">82%</div><div class="metric-label">Precision</div></div>
+      <div class="metric"><div class="metric-val">0.74</div><div class="metric-label">ROC-AUC</div></div>
+      <div class="metric"><div class="metric-val">40%</div><div class="metric-label">Less Chart Review</div></div>
+      <div class="metric"><div class="metric-val">2,000+</div><div class="metric-label">Notes Processed</div></div>
+    </div>
+    <ul class="card-bullets">
+      <li>Built an LLM-powered RAG system processing 2,000+ unstructured Community Health Worker notes, extracting Social Determinants of Health (SDOH) to predict 30-day ED readmissions</li>
+      <li>Applied prompt engineering and few-shot learning; proved TF-IDF outperforms BERT embeddings for interpretable clinical NLP — simpler beats complex in real-world healthcare data</li>
+      <li>ROC-AUC lifted from 0.60 baseline to 0.74 by integrating CHW narrative context with structured patient demographics via ensemble models (RF, XGBoost, AdaBoost)</li>
+    </ul>
+    <div class="card-tags">
+      <span class="ctag">RAG</span><span class="ctag">TF-IDF</span><span class="ctag">LLMs</span>
+      <span class="ctag">XGBoost</span><span class="ctag">SDOH</span><span class="ctag">Few-Shot</span>
+      <span class="ctag">Prompt Engineering</span><span class="ctag">Healthcare AI</span>
+    </div>
+  </div>
+
+  <!-- 2. SCIENTIFIC IE — SMALL -->
+  <div class="proj-card small fade-in" data-color="purple" data-tags="nlp ml">
+    <div class="card-bg-num">02</div>
+    <div class="card-top">
+      <div class="card-icon">⚗️</div>
+      <span class="card-status status-published">Published · AIxSET IEEE 2025</span>
+    </div>
+    <div class="card-partner">Argonne National Laboratory</div>
+    <h2 class="card-title">Scientific Info Extraction — "Less is More"</h2>
+    <div class="card-metrics">
+      <div class="metric"><div class="metric-val">73%</div><div class="metric-label">Blob Accuracy</div></div>
+      <div class="metric"><div class="metric-val">97%</div><div class="metric-label">Text Reduced</div></div>
+    </div>
+    <ul class="card-bullets">
+      <li>ELSIE-Blob preprocessing isolates 2–3% of polymer science papers containing all relational evidence, enabling zero-shot LLM extraction</li>
+      <li>LLaMA-3-8B, Mistral-7B, Phi-3 achieved 73% accuracy on polymer–Tm pair extraction — no fine-tuning needed</li>
+      <li>Hallucinations reduced 45%; smaller open-source models outperform GPT on domain-scoped inputs</li>
+    </ul>
+    <div class="card-tags">
+      <span class="ctag">LLaMA-3</span><span class="ctag">Mistral</span><span class="ctag">ELSIE-Blob</span>
+      <span class="ctag">IE Pipeline</span><span class="ctag">Materials AI</span>
+    </div>
+  </div>
+
+  <!-- 3. GEOSPATIAL AI — MEDIUM -->
+  <div class="proj-card medium fade-in" data-color="orange" data-tags="geo ml">
+    <div class="card-bg-num">03</div>
+    <div class="card-top">
+      <div class="card-icon">📍</div>
+      <span class="card-status status-published">Accepted · Computing Conf 2025</span>
+    </div>
+    <div class="card-partner">Cook County Sheriff's Office</div>
+    <h2 class="card-title">Geospatial AI — GPS Outlier Detection for Electronic Monitoring</h2>
+    <div class="card-metrics">
+      <div class="metric"><div class="metric-val">0.86</div><div class="metric-label">F1 Score</div></div>
+      <div class="metric"><div class="metric-val">55%</div><div class="metric-label">Fewer False Alerts</div></div>
+      <div class="metric"><div class="metric-val">69K+</div><div class="metric-label">GPS Trajectories</div></div>
+    </div>
+    <ul class="card-bullets">
+      <li>LSTM and ensemble models (XGBoost, LightGBM, Random Forest) on 69,000+ real GPS traces from ankle-monitor participants</li>
+      <li>Engineered 25+ features: Haversine distance, Mahalanobis distance, HDOP, satellite count, heading change, bearing deviation</li>
+      <li>Tree-based ensembles achieved F1 0.82–0.86, dramatically outperforming Kalman filters — directly reduces wrongful violation alerts</li>
+    </ul>
+    <div class="card-tags">
+      <span class="ctag">LSTM</span><span class="ctag">XGBoost</span><span class="ctag">LightGBM</span>
+      <span class="ctag">GPS / GNSS</span><span class="ctag">Feature Engineering</span><span class="ctag">Imbalanced ML</span>
+    </div>
+  </div>
+
+  <!-- 4. VULNERABILITY DETECTION — MEDIUM -->
+  <div class="proj-card medium fade-in" data-color="green" data-tags="security nlp ml">
+    <div class="card-bg-num">04</div>
+    <div class="card-top">
+      <div class="card-icon">🔐</div>
+      <span class="card-status status-published">Published · IJICS Jan 2025</span>
+    </div>
+    <div class="card-partner">DePaul University Research</div>
+    <h2 class="card-title">Explainable C/C++ Vulnerability Detection</h2>
+    <div class="card-metrics">
+      <div class="metric"><div class="metric-val">+90%</div><div class="metric-label">MCC Improvement</div></div>
+      <div class="metric"><div class="metric-val">10K+</div><div class="metric-label">Code Samples</div></div>
+    </div>
+    <ul class="card-bullets">
+      <li>Fine-tuned Gemma-2B, LLaMA-3, and CodeBERT via LoRA/QLoRA-based PEFT on 10,000+ C/C++ code samples</li>
+      <li>Extracted program slices (SeVCs) around API calls, pointer usage, arrays, arithmetic via PDGs generated with Joern</li>
+      <li>LIME explanations highlight vulnerable tokens — enabling developer trust and CI/CD pipeline adoption</li>
+    </ul>
+    <div class="card-tags">
+      <span class="ctag">CodeBERT</span><span class="ctag">BiGRU</span><span class="ctag">LoRA / QLoRA</span>
+      <span class="ctag">LIME / XAI</span><span class="ctag">PDG / Slicing</span><span class="ctag">PEFT</span>
+    </div>
+  </div>
+
+  <!-- 5. PATENT — SMALL -->
+  <div class="proj-card small fade-in" data-color="purple" data-tags="geo ml">
+    <div class="card-bg-num">05</div>
+    <div class="card-top">
+      <div class="card-icon">⚡</div>
+      <span class="card-status status-patent">Patent Pending</span>
+    </div>
+    <div class="card-partner">GPS Urban Mobility</div>
+    <h2 class="card-title">Error Correction in Urban GPS Data for Mobility Analysis</h2>
+    <ul class="card-bullets">
+      <li>Novel ML-based method for correcting systematic GPS positioning errors in dense urban environments</li>
+      <li>Handles multipath signal interference, signal blockage, and NLOS conditions unique to city canyons</li>
+      <li>Applicable to fleet tracking, ride-sharing, and electronic monitoring systems</li>
+    </ul>
+    <div class="card-tags">
+      <span class="ctag">GPS Correction</span><span class="ctag">Urban Mobility</span>
+      <span class="ctag">Map Matching</span><span class="ctag">Patent</span>
+    </div>
+  </div>
+
+  <!-- 6. BIOMETRIC AUTH — SMALL -->
+  <div class="proj-card small fade-in" data-color="cyan" data-tags="ml">
+    <div class="card-bg-num">06</div>
+    <div class="card-top">
+      <div class="card-icon">👂</div>
+      <span class="card-status status-research">Research</span>
+    </div>
+    <div class="card-partner">DePaul University</div>
+    <h2 class="card-title">Biometric Authentication via AirPods IMU</h2>
+    <div class="card-metrics">
+      <div class="metric"><div class="metric-val">98%</div><div class="metric-label">Accuracy</div></div>
+      <div class="metric"><div class="metric-val">0.95</div><div class="metric-label">AUC</div></div>
+    </div>
+    <ul class="card-bullets">
+      <li>Gait-based continuous authentication using AirPods motion sensor data — no phone interaction required</li>
+      <li>Ensemble classifiers (RF, GBC, XGBoost) on IMU time-series features; 98% accuracy, AUC 0.95</li>
+      <li>Also trained deep neural nets for EEG brain-signal command recognition using time–frequency representations + attention encoders</li>
+    </ul>
+    <div class="card-tags">
+      <span class="ctag">IMU Sensors</span><span class="ctag">Gait Analysis</span>
+      <span class="ctag">XGBoost</span><span class="ctag">EEG</span><span class="ctag">Attention</span>
+    </div>
+  </div>
+
+  <!-- 7. PDF RAG — MEDIUM -->
+  <div class="proj-card medium fade-in" data-color="orange" data-tags="nlp ml">
+    <div class="card-bg-num">07</div>
+    <div class="card-top">
+      <div class="card-icon">📄</div>
+      <span class="card-status status-applied">Applied AI</span>
+    </div>
+    <div class="card-partner">End-to-End Build</div>
+    <h2 class="card-title">PDF Query Answering System (RAG)</h2>
+    <ul class="card-bullets">
+      <li>Designed a RAG-powered Q&A interface using LLaMA 2, FAISS, and Streamlit for real-time document intelligence — upload any PDF, ask anything</li>
+      <li>End-to-end retrieval pipeline with embedding-based search, MMR re-ranking, and citation-aware prompting for improved factual grounding</li>
+      <li>Handles multi-document corpora; citation tracking prevents hallucinations by grounding every answer in retrieved passages</li>
+    </ul>
+    <div class="card-tags">
+      <span class="ctag">LLaMA 2</span><span class="ctag">FAISS</span><span class="ctag">RAG</span>
+      <span class="ctag">Streamlit</span><span class="ctag">MMR Re-ranking</span><span class="ctag">Embeddings</span>
+    </div>
+  </div>
+
+  <!-- 8. ROUNDABOUT DETECTION — MEDIUM -->
+  <div class="proj-card medium fade-in" data-color="green" data-tags="geo ml">
+    <div class="card-bg-num">08</div>
+    <div class="card-top">
+      <div class="card-icon">🔄</div>
+      <span class="card-status status-applied">Applied AI</span>
+    </div>
+    <div class="card-partner">Urban Map Coverage</div>
+    <h2 class="card-title">Roundabout Detection from GPS Trajectories</h2>
+    <ul class="card-bullets">
+      <li>Developed ML algorithms to identify roundabouts from noisy GPS trajectories to enhance urban map coverage and routing accuracy</li>
+      <li>Extracted geometric and kinematic features (heading rotation, curvature, angular velocity) from raw GPS point sequences</li>
+      <li>Addresses real-world GPS noise challenges in map inference — directly improves navigation data quality</li>
+    </ul>
+    <div class="card-tags">
+      <span class="ctag">GPS Trajectories</span><span class="ctag">Map Inference</span>
+      <span class="ctag">Feature Engineering</span><span class="ctag">Urban AI</span><span class="ctag">Classification</span>
+    </div>
+  </div>
+
+</div><!-- /grid -->
+</div><!-- /section -->
+
+<!-- FOOTER -->
+<footer>
+  <a href="index.html" class="back-link">← Back to Portfolio</a>
+  <span>SAMEER SHAIK — <span style="color:var(--accent)">OPEN TO WORK</span></span>
+  <span>sameershaik65@gmail.com</span>
+</footer>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animCursor() {
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+document.querySelectorAll('a, button, .proj-card').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width = '18px'; cursor.style.height = '18px'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width = '10px'; cursor.style.height = '10px'; });
+});
+
+// FADE IN
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i * 80); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// FILTER
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.proj-card').forEach(card => {
+      if (f === 'all') { card.classList.remove('hidden'); card.classList.add('visible'); }
+      else {
+        const tags = card.dataset.tags || '';
+        if (tags.includes(f)) { card.classList.remove('hidden'); card.classList.add('visible'); }
+        else { card.classList.add('hidden'); }
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
